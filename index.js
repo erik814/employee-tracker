@@ -55,6 +55,8 @@ function start(){
                 addDepartment();
             }else if(selected.initialChoice === 'Add Role'){
                 addRole();
+            }else if(selected.initialChoice === 'Add Employee'){
+                addEmployee();
             }
         });
 };
@@ -106,23 +108,36 @@ function addDepartment(){
 
 function addRole(){
     inquirer
-        .prompt(
+        .prompt([
             {
                 type: 'input',
                 message: 'What is the name of the role?',
                 name: 'name',
             },
             {
-                type: 'number',
+                type: 'input',
                 message: "What is the role's salary?",
                 name: 'salary',
+                validate: function(value){
+                    if (!isNaN(value && value > 0)){
+                        return true;
+                    }
+                    return 'Please enter a number';
+                }
             },
             {
-                type: 'number',
+                type: 'input',
                 message: 'What is the ID for the department this role is associated with?',
-                name: 'deptId'
+                name: 'deptId',
+                validate: function(value){
+                    if (!isNaN(value) && value > 0){
+                        return true;
+                    }else{
+                        return 'Please enter a number';
+                    }
+                }
             }
-        )
+        ])
         .then(selected => {
             // goes into the database and tells it to add a role with values given
             // in the inquirer prompt above
@@ -132,6 +147,53 @@ function addRole(){
                 }
                 //console.logs the updated roles list
                 db.query('SELECT * FROM roles', function (err, results) {
+                    console.table(results);
+                });
+            });
+        });
+};
+
+function addEmployee(){
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                message: "What is the employee's first name?",
+                name: 'first',
+            },
+            {
+                type: 'number',
+                message: "What is the role's salary?",
+                name: 'salary',
+                validate: function(value){
+                    if (!isNaN(value)){
+                        return true;
+                    }
+                    return 'Please enter a number';
+                }
+            },
+            {
+                type: 'number',
+                message: 'What is the ID for the department this role is associated with?',
+                name: 'deptId',
+                validate: function(value){
+                    if (!isNaN(value) && value > 0){
+                        return true;
+                    }else{
+                        return 'Please enter a number';
+                    }
+                }
+            }
+        ])
+        .then(selected => {
+            // goes into the database and tells it to add a role with values given
+            // in the inquirer prompt above
+            db.query('INSERT INTO employees(first_name, last_name, roles_id) VALUES (?, ?, ?)', [selected.first, selected.last, selected.roletId], (err, result) =>{
+                if(err){
+                    console.log(err);
+                }
+                //console.logs the updated roles list
+                db.query('SELECT * FROM employees', function (err, results) {
                     console.table(results);
                 });
             });
