@@ -97,11 +97,9 @@ function addDepartment(){
             db.query('INSERT INTO departments(name) VALUES (?)', selected.name, (err, result) =>{
                 if(err){
                     console.log(err);
+                }else{
+                    console.log(`${selected.name} department added`)
                 }
-                //console.logs the updated department list
-                db.query('SELECT * FROM departments', function (err, results) {
-                    console.table(results);
-                });
             });
         });
 };
@@ -144,11 +142,9 @@ function addRole(){
             db.query('INSERT INTO roles(title, salary, departments_id) VALUES (?, ?, ?)', [selected.name, selected.salary, selected.deptId], (err, result) =>{
                 if(err){
                     console.log(err);
+                }else{
+                    console.log(`${selected.title} role added`);
                 }
-                //console.logs the updated roles list
-                db.query('SELECT * FROM roles', function (err, results) {
-                    console.table(results);
-                });
             });
         });
 };
@@ -162,20 +158,14 @@ function addEmployee(){
                 name: 'first',
             },
             {
-                type: 'number',
-                message: "What is the role's salary?",
-                name: 'salary',
-                validate: function(value){
-                    if (!isNaN(value)){
-                        return true;
-                    }
-                    return 'Please enter a number';
-                }
+                type: 'input',
+                message: "What is the employee's last name?",
+                name: 'last',
             },
             {
-                type: 'number',
-                message: 'What is the ID for the department this role is associated with?',
-                name: 'deptId',
+                type: 'input',
+                message: 'What is the ID for the role this employee is associated with?',
+                name: 'roleId',
                 validate: function(value){
                     if (!isNaN(value) && value > 0){
                         return true;
@@ -186,16 +176,14 @@ function addEmployee(){
             }
         ])
         .then(selected => {
-            // goes into the database and tells it to add a role with values given
+            // goes into the database and tells it to add an employee with values given
             // in the inquirer prompt above
             db.query('INSERT INTO employees(first_name, last_name, roles_id) VALUES (?, ?, ?)', [selected.first, selected.last, selected.roletId], (err, result) =>{
                 if(err){
                     console.log(err);
+                }else{
+                    console.log(`${selected.first} ${selected.last} added as an employee`)
                 }
-                //console.logs the updated roles list
-                db.query('SELECT * FROM employees', function (err, results) {
-                    console.table(results);
-                });
             });
         });
 };
