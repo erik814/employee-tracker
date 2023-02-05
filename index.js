@@ -37,19 +37,10 @@ function start(){
             console.log(selected.initialChoice);
 
             if(selected.initialChoice === 'View All Departments'){
-                console.log('------------');
-                console.log('view departments selected');
-                console.log('------------');
                 viewDepartments();
             }else if(selected.initialChoice === 'View All Roles'){
-                console.log('------------');
-                console.log('view roles selected');
-                console.log('------------');
                 viewRoles();
             }else if(selected.initialChoice === 'View All Employees'){
-                console.log('------------');
-                console.log('view employees selected');
-                console.log('------------');
                 viewEmployees();
             }else if(selected.initialChoice === 'Add Department'){
                 addDepartment();
@@ -57,6 +48,8 @@ function start(){
                 addRole();
             }else if(selected.initialChoice === 'Add Employee'){
                 addEmployee();
+            }else if(selected.initialChoice === 'Update Employee Role'){
+                updateEmployee();
             }
         });
 };
@@ -187,3 +180,79 @@ function addEmployee(){
             });
         });
 };
+
+async function updateEmployee(){
+    let employeesArray = [];
+    let rolesArray = [];
+
+    await new Promise((resolve, reject) =>{
+        db.query('SELECT first_name, last_name FROM employee_db.employees', function(err, results){
+            if(err){
+                return reject(err);
+            }
+            employeesArray = results.map(function(row){
+                return row.first_name + ' ' + row.last_name;
+            });
+            console.log('line 196: ', employeesArray);
+        });
+    });
+
+    await new Promise((resolve, reject) =>{
+        db.query('SELECT title FROM employee_db.roles', function(err, results){
+            if(err){
+                return reject(err);
+            }
+            rolesArray = results.map(function(row){
+                return row.title;
+            });
+            console.log('line 208: ', rolesArray);
+        });
+    });
+};
+
+
+
+
+// async function updateEmployee(){
+//     console.log('update function');
+    
+//     let employeesArray = [];
+//     let rolesArray = [];
+
+//     db.query('SELECT first_name, last_name FROM employee_db.employees', function (err, results) {
+//         employeesArray = results.map(function (row) {
+//             return row.first_name + ' ' + row.last_name;
+//         });
+//         console.log('line 194: ', employeesArray);
+//     });
+
+//     console.log('line 211: ', employeesArray)
+
+//     db.query('SELECT title FROM roles', function (err, results) {
+//         rolesArray = results.map(function (row) {
+//             return row.title;
+//         });
+//         console.log(rolesArray);
+//     });
+
+//     console.log('line 221: ', employeesArray);
+
+//     await inquirer
+//         .prompt([
+//             {
+//                 type: 'list',
+//                 message: 'Which employee do you want to update?',
+//                 choices: employeesArray,
+//                 name: 'employee'
+//             },
+//             {
+//                 type: 'list',
+//                 message: "What is the employee's new role?",
+//                 choices: rolesArray,
+//                 name: 'role',
+//             }
+//         ])
+//         .then(selected => {
+//             console.log('then')
+//         })
+// }
