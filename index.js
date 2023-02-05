@@ -2,6 +2,9 @@ const inquirer = require('inquirer');
 const mysql = require('mysql2');
 const cTable = require('console.table');
 
+let employeesArray = [];
+let rolesArray = [];
+
 const db = mysql.createConnection(
     {
         host: 'localhost',
@@ -49,7 +52,7 @@ function start(){
             }else if(selected.initialChoice === 'Add Employee'){
                 addEmployee();
             }else if(selected.initialChoice === 'Update Employee Role'){
-                updateEmployee();
+                employeeMap();
             }
         });
 };
@@ -181,10 +184,7 @@ function addEmployee(){
         });
 };
 
-async function updateEmployee(){
-    let employeesArray = [];
-    let rolesArray = [];
-
+async function employeeMap(){
     await new Promise((resolve, reject) =>{
         db.query('SELECT first_name, last_name FROM employee_db.employees', function(err, results){
             if(err){
@@ -194,9 +194,14 @@ async function updateEmployee(){
                 return row.first_name + ' ' + row.last_name;
             });
             console.log('line 196: ', employeesArray);
+            resolve('employeesArray updated');
         });
-    });
 
+        rolesMap();
+    });
+}
+
+async function rolesMap(){
     await new Promise((resolve, reject) =>{
         db.query('SELECT title FROM employee_db.roles', function(err, results){
             if(err){
@@ -205,54 +210,34 @@ async function updateEmployee(){
             rolesArray = results.map(function(row){
                 return row.title;
             });
-            console.log('line 208: ', rolesArray);
+            console.log('line 212: ', rolesArray);
+            resolve('rolesArray updated');
         });
     });
+
+    console.log('end of roles map')
+    updateInquirer();
 };
 
+function updateInquirer(){
+    console.log('update inquirer');
 
-
-
-// async function updateEmployee(){
-//     console.log('update function');
-    
-//     let employeesArray = [];
-//     let rolesArray = [];
-
-//     db.query('SELECT first_name, last_name FROM employee_db.employees', function (err, results) {
-//         employeesArray = results.map(function (row) {
-//             return row.first_name + ' ' + row.last_name;
-//         });
-//         console.log('line 194: ', employeesArray);
-//     });
-
-//     console.log('line 211: ', employeesArray)
-
-//     db.query('SELECT title FROM roles', function (err, results) {
-//         rolesArray = results.map(function (row) {
-//             return row.title;
-//         });
-//         console.log(rolesArray);
-//     });
-
-//     console.log('line 221: ', employeesArray);
-
-//     await inquirer
-//         .prompt([
-//             {
-//                 type: 'list',
-//                 message: 'Which employee do you want to update?',
-//                 choices: employeesArray,
-//                 name: 'employee'
-//             },
-//             {
-//                 type: 'list',
-//                 message: "What is the employee's new role?",
-//                 choices: rolesArray,
-//                 name: 'role',
-//             }
-//         ])
-//         .then(selected => {
-//             console.log('then')
-//         })
-// }
+    inquirer
+        .prompt([
+            {
+                type: 'list',
+                message: 'Which employee do you want to update?',
+                choices: employeesArray,
+                name: 'employee'
+            },
+            {
+                type: 'list',
+                message: "What is the employee's new role?",
+                choices: rolesArray,
+                name: 'role',
+            }
+        ])
+        .then(selected => {
+            console.log('then')
+        })
+};
