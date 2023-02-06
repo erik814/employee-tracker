@@ -59,7 +59,7 @@ function start(){
 
 
 
-//second pages
+//view functions
 
 function viewDepartments(){
     console.log('view departments function');
@@ -79,6 +79,8 @@ function viewEmployees(){
         console.table(results);
     });
 };
+
+//add functions
 
 function addDepartment(){
     inquirer
@@ -184,14 +186,18 @@ function addEmployee(){
         });
 };
 
+// update functions
+
 async function employeeMap(){
     await new Promise((resolve, reject) =>{
-        db.query('SELECT first_name, last_name FROM employee_db.employees', function(err, results){
+        //goes into the database and pulls the first and last name of each current employee
+        db.query('SELECT first_name, last_name, id FROM employee_db.employees', function(err, results){
             if(err){
                 return reject(err);
             }
+            // filters out the first and last name, and merges them together, then puts them all in an array
             employeesArray = results.map(function(row){
-                return row.first_name + ' ' + row.last_name;
+                return {name: row.first_name + ' ' + row.last_name, value: row.id};
             });
             console.log('line 196: ', employeesArray);
             resolve('employeesArray updated');
@@ -203,19 +209,21 @@ async function employeeMap(){
 
 async function rolesMap(){
     await new Promise((resolve, reject) =>{
-        db.query('SELECT title FROM employee_db.roles', function(err, results){
+        //goes into the database and pulls a list of role titles
+        db.query('SELECT title, id FROM employee_db.roles', function(err, results){
             if(err){
                 return reject(err);
             }
+            //filters just the titles and puts them in an array
             rolesArray = results.map(function(row){
-                return row.title;
+                return{name: row.title, value: row.id}
             });
             console.log('line 212: ', rolesArray);
             resolve('rolesArray updated');
         });
     });
 
-    console.log('end of roles map')
+    console.log('end of roles map: ', employeesArray)
     updateInquirer();
 };
 
@@ -238,6 +246,15 @@ function updateInquirer(){
             }
         ])
         .then(selected => {
-            console.log('then')
+            // console.log(selected)
+            console.log(selected)
+
+            db.query('UPDATE employees SET roles_id = ? WHERE id = ?', [selected.role, selected.employee], (err, result) =>{
+                if(err){
+                    console.log(err);
+                }else{
+                    console.log(`Role for employee has been updated`);
+                }
+            });
         })
 };
