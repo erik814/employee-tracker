@@ -57,27 +57,38 @@ function start(){
         });
 };
 
-
-
-//view functions
+function goBack(){
+    inquirer
+        .prompt({
+            type: 'list',
+            message: 'Back To Menu',
+            choices: ['Yes'],
+            name: 'choice',
+        })
+        .then(choice =>{
+            start();
+        })
+};
 
 function viewDepartments(){
-    console.log('view departments function');
     db.query('SELECT * FROM departments', function (err, results) {
         console.table(results);
     });
+    goBack();
 };
 
 function viewRoles(){
     db.query('SELECT * FROM roles', function (err, results) {
         console.table(results);
     });
+    goBack();
 };
 
 function viewEmployees(){
     db.query('SELECT * FROM employees', function (err, results){
         console.table(results);
     });
+    goBack();
 };
 
 //add functions
@@ -99,6 +110,8 @@ function addDepartment(){
                     console.log(`${selected.name} department added`)
                 }
             });
+
+            goBack();
         });
 };
 
@@ -141,9 +154,11 @@ function addRole(){
                 if(err){
                     console.log(err);
                 }else{
-                    console.log(`${selected.title} role added`);
+                    console.log(`${selected.name} role added`);
                 }
             });
+
+            goBack();
         });
 };
 
@@ -171,18 +186,32 @@ function addEmployee(){
                         return 'Please enter a number';
                     }
                 }
+            },
+            {
+                type: 'input',
+                message: "What is the ID for this employee's manager?",
+                name: 'managerId',
+                validate: function(value){
+                    if (!isNaN(value) && value > 0){
+                        return true;
+                    }else{
+                        return 'Please enter a number';
+                    }
+                }
             }
         ])
         .then(selected => {
             // goes into the database and tells it to add an employee with values given
             // in the inquirer prompt above
-            db.query('INSERT INTO employees(first_name, last_name, roles_id) VALUES (?, ?, ?)', [selected.first, selected.last, selected.roletId], (err, result) =>{
+            db.query('INSERT INTO employees(first_name, last_name, roles_id, manager_id) VALUES (?, ?, ?, ?)', [selected.first, selected.last, selected.roleId, selected.managerId], (err, result) =>{
                 if(err){
                     console.log(err);
                 }else{
                     console.log(`${selected.first} ${selected.last} added as an employee`)
                 }
             });
+
+            goBack();
         });
 };
 
@@ -246,7 +275,6 @@ function updateInquirer(){
             }
         ])
         .then(selected => {
-            // console.log(selected)
             console.log(selected)
 
             db.query('UPDATE employees SET roles_id = ? WHERE id = ?', [selected.role, selected.employee], (err, result) =>{
@@ -256,5 +284,7 @@ function updateInquirer(){
                     console.log(`Role for employee has been updated`);
                 }
             });
+
+            goBack();
         })
 };
